@@ -242,6 +242,38 @@ func CalculateRequestSignature(r *http.Request, parameters Parameters, credentia
 	return mac.Sum(nil), nil
 }
 
+// CreateRequestHeader makes a Hawk authentication string that can be
+// added to an http.Request
+func CreateRequestHeader(r *http.Request, p Parameters, c Credentials) (string, error) {
+
+	var mac, hash string
+
+	if p.Mac == nil || len(p.Mac) == 0 {
+		macHash, err := CalculateRequestSignature(r, p, c)
+		if err != nil {
+			return "", err
+		}
+		mac = base64.StdEncoding.EncodeToString(macHash)
+	} else {
+		mac = base64.StdEncoding.EncodeToString(p.Mac)
+	}
+
+	if p.Hash != nil && len(p.Hash) > 0 {
+		hash = base64.StdEncoding.EncodeToString(p.Hash)
+	}
+
+	header := fmt.Sprintf(`Hawk id="%s", ts="%d", nonce="%s", ext="%s", hash="%s", mac="%s"`,
+		p.Id,
+		p.Timestamp,
+		p.Nonce,
+		p.Ext,
+		hash,
+		mac,
+	)
+
+	return header, nil
+}
+
 func (a *Authenticator) Authenticate(w http.ResponseWriter, r *http.Request) (Credentials, bool) {
 	// Grab the Authorization Header
 
