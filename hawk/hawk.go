@@ -196,7 +196,7 @@ func GetRequestContentType(r *http.Request) string {
 	return r.Header.Get("Content-Type")
 }
 
-func calculatePayloadHash(r *http.Request) ([]byte, error) {
+func CalculatePayloadHash(r *http.Request) ([]byte, error) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return nil, err
@@ -213,10 +213,10 @@ func calculatePayloadHash(r *http.Request) ([]byte, error) {
 	return hash.Sum(nil), nil
 }
 
-func calculateRequestSignature(r *http.Request, parameters Parameters, credentials Credentials) ([]byte, error) {
+func CalculateRequestSignature(r *http.Request, parameters Parameters, credentials Credentials) ([]byte, error) {
 	var encodedPayloadHash string
 	if len(parameters.Hash) != 0 {
-		payloadHash, err := calculatePayloadHash(r)
+		payloadHash, err := CalculatePayloadHash(r)
 		if err != nil {
 			return nil, err
 		}
@@ -316,7 +316,7 @@ func (a *Authenticator) Authenticate(w http.ResponseWriter, r *http.Request) (Cr
 
 	// Check the Hawk request signature
 
-	mac, err := calculateRequestSignature(r, parameters, credentials)
+	mac, err := CalculateRequestSignature(r, parameters, credentials)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return nil, false

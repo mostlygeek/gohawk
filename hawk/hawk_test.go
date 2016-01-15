@@ -88,13 +88,13 @@ func Test_GetRequestPort(t *testing.T) {
 	test("https://localhost:8443/foo", 8443)
 }
 
-func Test_calculatePayloadHash(t *testing.T) {
+func Test_CalculatePayloadHash(t *testing.T) {
 	r, err := http.NewRequest("POST", "http://localhost", strings.NewReader("Thank you for flying Hawk"))
 	if err != nil {
 		t.Error(err)
 	}
 	r.Header.Add("Content-Type", "text/plain")
-	hash, err := calculatePayloadHash(r)
+	hash, err := CalculatePayloadHash(r)
 	if err != nil {
 		t.Error(err)
 	}
@@ -104,7 +104,7 @@ func Test_calculatePayloadHash(t *testing.T) {
 	}
 }
 
-func Test_calculateRequestSignatureWithGET(t *testing.T) {
+func Test_CalculateRequestSignatureWithGET(t *testing.T) {
 	r, err := http.NewRequest("GET", "http://example.com:8000/resource/1?b=1&a=2", nil)
 	if err != nil {
 		t.Error(err)
@@ -125,7 +125,7 @@ func Test_calculateRequestSignatureWithGET(t *testing.T) {
 	// 	Algorithm:     "sha256",
 	// }
 
-	mac, err := calculateRequestSignature(r, parameters, credentials)
+	mac, err := CalculateRequestSignature(r, parameters, credentials)
 	if err != nil {
 		t.Error(err)
 	}
@@ -136,7 +136,7 @@ func Test_calculateRequestSignatureWithGET(t *testing.T) {
 	}
 }
 
-func Test_calculateRequestSignatureWithPOST(t *testing.T) {
+func Test_CalculateRequestSignatureWithPOST(t *testing.T) {
 	r, err := http.NewRequest("POST", "http://example.com:8000/resource/1?b=1&a=2", strings.NewReader("Thank you for flying Hawk"))
 	if err != nil {
 		t.Error(err)
@@ -160,7 +160,7 @@ func Test_calculateRequestSignatureWithPOST(t *testing.T) {
 	// 	Algorithm:     "sha256",
 	// }
 
-	mac, err := calculateRequestSignature(r, parameters, credentials)
+	mac, err := CalculateRequestSignature(r, parameters, credentials)
 	if err != nil {
 		t.Error(err)
 	}
