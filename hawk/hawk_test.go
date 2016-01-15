@@ -49,13 +49,13 @@ func Test_parseParameters(t *testing.T) {
 func Test_validateParameters(t *testing.T) {
 }
 
-func Test_getRequestHost(t *testing.T) {
+func Test_GetRequestHost(t *testing.T) {
 	test := func(url string, expectedHost string, headers map[string]string) {
 		request, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			t.Error(err)
 		}
-		host := getRequestHost(request)
+		host := GetRequestHost(request)
 		if host != expectedHost {
 			t.Errorf("Expected host %s for %s but got %s", expectedHost, url, host)
 		}
@@ -71,13 +71,13 @@ func Test_getRequestHost(t *testing.T) {
 	test("https://127.0.0.1:8443/foo", "127.0.0.1", map[string]string{})
 }
 
-func Test_getRequestPort(t *testing.T) {
+func Test_GetRequestPort(t *testing.T) {
 	test := func(url string, expectedPort int) {
 		request, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			t.Error(err)
 		}
-		port := getRequestPort(request)
+		port := GetRequestPort(request)
 		if port != expectedPort {
 			t.Errorf("Expected port %d for %s but got %d", expectedPort, url, port)
 		}

@@ -154,7 +154,7 @@ func validateCredentials(credentials Credentials) error {
 	return nil
 }
 
-func getRequestPath(r *http.Request) string {
+func GetRequestPath(r *http.Request) string {
 	path := r.URL.Path
 	if len(r.URL.RawQuery) != 0 {
 		path = path + "?" + r.URL.RawQuery
@@ -167,12 +167,12 @@ func getRequestPath(r *http.Request) string {
 
 // TODO: Make sure the following two do the right thing when behind a proxy
 
-func getRequestHost(r *http.Request) string {
+func GetRequestHost(r *http.Request) string {
 	hostPort := strings.Split(r.Host, ":")
 	return hostPort[0]
 }
 
-func getRequestPort(r *http.Request) int {
+func GetRequestPort(r *http.Request) int {
 	host := r.Host
 	if len(r.Header["X-Forwarded-Host"]) != 0 {
 		host = r.Header["X-Forwarded-Host"][0]
@@ -192,7 +192,7 @@ func getRequestPort(r *http.Request) int {
 	return 0
 }
 
-func getRequestContentType(r *http.Request) string {
+func GetRequestContentType(r *http.Request) string {
 	return r.Header.Get("Content-Type")
 }
 
@@ -206,7 +206,7 @@ func calculatePayloadHash(r *http.Request) ([]byte, error) {
 
 	hash := sha256.New()
 	hash.Write([]byte("hawk.1.payload\n"))
-	hash.Write([]byte(getRequestContentType(r)))
+	hash.Write([]byte(GetRequestContentType(r)))
 	hash.Write([]byte("\n"))
 	hash.Write(body)
 	hash.Write([]byte("\n"))
@@ -228,9 +228,9 @@ func calculateRequestSignature(r *http.Request, parameters Parameters, credentia
 		strconv.FormatInt(parameters.Timestamp, 10),
 		parameters.Nonce,
 		r.Method,
-		getRequestPath(r),
-		getRequestHost(r),
-		strconv.Itoa(getRequestPort(r)),
+		GetRequestPath(r),
+		GetRequestHost(r),
+		strconv.Itoa(GetRequestPort(r)),
 		encodedPayloadHash,
 		parameters.Ext,
 	}
