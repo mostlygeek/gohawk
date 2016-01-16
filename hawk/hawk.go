@@ -16,11 +16,7 @@ import (
 	"strconv"
 	"strings"
 	"text/scanner"
-
-	. "github.com/mostlygeek/go-debug"
 )
-
-var debug = Debug("hawk")
 
 type Algorithm string
 
@@ -371,18 +367,6 @@ func (a *Authenticator) Authenticate(w http.ResponseWriter, r *http.Request) (Cr
 	}
 
 	if !bytes.Equal(mac, parameters.Mac) {
-		debug(`Signature Mismatch: %s != %s
-  - Id: "%s"
-  - TS: "%d"
-  - Nonce: "%s"
-  - Ext: "%s"`,
-			base64.StdEncoding.EncodeToString(mac),
-			base64.StdEncoding.EncodeToString(parameters.Mac),
-			parameters.Id,
-			parameters.Timestamp,
-			parameters.Nonce,
-			parameters.Ext,
-		)
 		http.Error(w, "Signature Mismatch", http.StatusUnauthorized)
 		return nil, false
 	}
