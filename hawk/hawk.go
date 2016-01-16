@@ -244,32 +244,44 @@ func CalculateRequestSignature(r *http.Request, parameters Parameters, credentia
 
 // CreateRequestHeader makes a Hawk authentication string that can be
 // added to an http.Request
-func CreateRequestHeader(r *http.Request, p Parameters, c Credentials) (string, error) {
+func CreateRequestHeader(r *http.Request, c Credentials, id string, timestamp int64, nonce string, ext string) (string, error) {
+
+	p := Parameters{
+		Id:        id,
+		Timestamp: timestamp,
+		Nonce:     nonce,
+		Ext:       ext,
+	}
 
 	var mac, hash string
 
-	if p.Mac == nil || len(p.Mac) == 0 {
-		macHash, err := CalculateRequestSignature(r, p, c)
+	if r.Body != nil {
+		hashB, err := CalculatePayloadHash(r)
 		if err != nil {
 			return "", err
 		}
-		mac = base64.StdEncoding.EncodeToString(macHash)
-	} else {
-		mac = base64.StdEncoding.EncodeToString(p.Mac)
+		p.Hash = hashB
+		hash = base64.StdEncoding.EncodeToString(hashB)
 	}
 
-	if p.Hash != nil && len(p.Hash) > 0 {
-		hash = base64.StdEncoding.EncodeToString(p.Hash)
+	macB, err := CalculateRequestSignature(r, p, c)
+	if err != nil {
+		return "", err
 	}
 
-	header := fmt.Sprintf(`Hawk id="%s", ts="%d", nonce="%s", ext="%s", hash="%s", mac="%s"`,
-		p.Id,
-		p.Timestamp,
-		p.Nonce,
-		p.Ext,
-		hash,
+	mac = base64.StdEncoding.EncodeToString(macB)
+
+	header := fmt.Sprintf(`Hawk id="%s", ts="%d", nonce="%s", ext="%s", mac="%s"`,
+		id,
+		timestamp,
+		nonce,
+		ext,
 		mac,
 	)
+
+	if hash != "" {
+		header = fmt.Sprintf(`%s, hash="%s"`, header, hash)
+	}
 
 	return header, nil
 }

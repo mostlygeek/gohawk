@@ -179,26 +179,21 @@ func Test_CreateRequestHeader(t *testing.T) {
 	}
 	r.Header.Add("Content-Type", "text/plain")
 
-	payloadHash, _ := CalculatePayloadHash(r)
-
-	parameters := Parameters{
-		Id:        "dh37fgj492je",
-		Timestamp: 1353832234,
-		Ext:       "some-app-ext-data",
-		Nonce:     "j4h3g2",
-		Hash:      payloadHash,
-	}
-
 	credentials := NewBasicCredentials("dh37fgj492je", []byte("werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn"), "sha256")
 
-	header, err := CreateRequestHeader(r, parameters, credentials)
+	id := "dh37fgj492je"
+	var timestamp int64 = 1353832234
+	ext := "some-app-ext-data"
+	nonce := "j4h3g2"
+
+	header, err := CreateRequestHeader(r, credentials, id, timestamp, nonce, ext)
 
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	expectedHeader := `Hawk id="dh37fgj492je", ts="1353832234", nonce="j4h3g2", ext="some-app-ext-data", hash="Yi9LfIIFRtBEPt74PVmbTF/xVAwPn7ub15ePICfgnuY=", mac="aSe1DERmZuRl3pI36/9BdZmnErTw3sNzOOAUlfeKjVw="`
+	expectedHeader := `Hawk id="dh37fgj492je", ts="1353832234", nonce="j4h3g2", ext="some-app-ext-data", mac="aSe1DERmZuRl3pI36/9BdZmnErTw3sNzOOAUlfeKjVw=", hash="Yi9LfIIFRtBEPt74PVmbTF/xVAwPn7ub15ePICfgnuY="`
 	if header != expectedHeader {
 		t.Errorf("Header mismatch\nExpected: %s\nGot     : %s", expectedHeader, header)
 	}
